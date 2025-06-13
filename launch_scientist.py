@@ -190,6 +190,9 @@ def do_idea(
         log = open(log_path, "a")
         sys.stdout = log
         sys.stderr = log
+
+
+    # START EXPERIMENTATION, WRITEUP, AND REVIEW
     try:
         print_time()
         print(f"*Starting idea: {idea_name}*")
@@ -218,7 +221,8 @@ def do_idea(
         print_time()
         print(f"*Starting Experiments*")
         try:
-            success = perform_experiments(idea, folder_name, coder, baseline_results)
+            #success = perform_experiments(idea, folder_name, coder, baseline_results)
+            success = True
         except Exception as e:
             print(f"Error during experiments: {e}")
             print(f"Experiments failed for idea {idea_name}")
@@ -227,6 +231,10 @@ def do_idea(
         if not success:
             print(f"Experiments failed for idea {idea_name}")
             return False
+
+
+        #return True    # REMOVE FOR WRITEUP
+
 
         print_time()
         print(f"*Starting Writeup*")
@@ -251,7 +259,7 @@ def do_idea(
                 edit_format="diff",
             )
             try:
-                perform_writeup(idea, folder_name, coder, client, client_model, engine=args.engine)
+                perform_writeup(idea, folder_name, coder, client, client_model, engine=args.engine, num_cite_rounds = 1)
             except Exception as e:
                 print(f"Failed to perform writeup: {e}")
                 return False
@@ -360,7 +368,8 @@ if __name__ == "__main__":
     with open(osp.join(base_dir, "ideas.json"), "w") as f:
         json.dump(ideas, f, indent=4)
 
-    novel_ideas = [idea for idea in ideas if idea["novel"]]
+    #novel_ideas = [idea for idea in ideas if idea["novel"]]
+    novel_ideas = [idea for idea in ideas]
     # novel_ideas = list(reversed(novel_ideas))
 
     if args.parallel > 0:

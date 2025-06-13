@@ -117,6 +117,8 @@ def generate_ideas(
 
             msg_history = []
             print(f"Iteration 1/{num_reflections}")
+
+            ## GENERATE ONE NEW IDEA
             text, msg_history = get_response_from_llm(
                 idea_first_prompt.format(
                     task_description=prompt["task_description"],
@@ -135,6 +137,8 @@ def generate_ideas(
             print(json_output)
 
             # Iteratively improve task.
+
+            ## REFLECTION ON GENERATED IDEA
             if num_reflections > 1:
                 for j in range(num_reflections - 1):
                     print(f"Iteration {j + 2}/{num_reflections}")
@@ -219,10 +223,10 @@ def generate_next_idea(
                         num_reflections=num_reflections,
                     )
                     + """
-Completed ideas have an additional "Score" field which indicates the assessment by an expert ML reviewer.
-This is on a standard 1-10 ML conference scale.
-Scores of 0 indicate the idea failed either during experimentation, writeup or reviewing.
-""",
+                    Completed ideas have an additional "Score" field which indicates the assessment by an expert ML reviewer.
+                    This is on a standard 1-10 ML conference scale.
+                    Scores of 0 indicate the idea failed either during experimentation, writeup or reviewing.
+                    """,
                     client=client,
                     model=model,
                     system_message=idea_system_prompt,
@@ -493,8 +497,8 @@ def check_idea_novelty(
 
 
 if __name__ == "__main__":
-    MAX_NUM_GENERATIONS = 32
-    NUM_REFLECTIONS = 5
+    MAX_NUM_GENERATIONS = 1
+    NUM_REFLECTIONS = 2
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate AI scientist ideas")
@@ -502,7 +506,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--experiment",
         type=str,
-        default="nanoGPT",
+        default="nanoGPT_lite",
         help="Experiment to run AI Scientist on.",
     )
     parser.add_argument(

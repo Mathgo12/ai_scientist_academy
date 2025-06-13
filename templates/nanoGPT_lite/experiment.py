@@ -314,7 +314,7 @@ class GPT(nn.Module):
 
 
 # --- END model.py ---
-def train(dataset="shakespeare_char", out_dir="run_0", seed_offset=0):
+def train(dataset="shakespeare_char", out_dir="run_0", seed_offset=0, max_iters=10000):
     # -----------------------------------------------------------------------------
     # default config values designed to train a gpt2 (124M) on OpenWebText
     # data
@@ -336,7 +336,7 @@ def train(dataset="shakespeare_char", out_dir="run_0", seed_offset=0):
     bias = False  # do we use bias inside LayerNorm and Linear layers?
     # adamw optimizer
     learning_rate = 1e-3 if dataset == "shakespeare_char" else 5e-4
-    max_iters = 5000 if dataset == "shakespeare_char" else 100000
+    max_iters = 5000 if dataset == "shakespeare_char" else max_iters
     weight_decay = 1e-1
     beta1 = 0.9
     beta2 = 0.99  # make a bit bigger because number of tokens per iter is small
@@ -515,7 +515,6 @@ def train(dataset="shakespeare_char", out_dir="run_0", seed_offset=0):
     local_iter_num = 0  # number of iterations in the lifetime of this process
     raw_model = model
     while True:
-
         # determine and set the learning rate for this iteration
         lr = get_lr(iter_num) if decay_lr else learning_rate
         for param_group in optimizer.param_groups:
@@ -684,7 +683,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     num_seeds = {
-        "shakespeare_char": 2,
+        "shakespeare_char": 1,
     }
 
     out_dir = args.out_dir
@@ -692,7 +691,7 @@ if __name__ == "__main__":
     final_infos = {}
     for dataset in num_seeds.keys():
         final_info_list = []
-        for seed_offset in range(num_seeds[dataset]):
+        for seed_offset in range(num_seeds[dataset]): # seed_offset is 0, 1, ...
             final_info, train_info, val_info = train(dataset, out_dir, seed_offset)
             all_results[f"{dataset}_{seed_offset}_final_info"] = final_info
             all_results[f"{dataset}_{seed_offset}_train_info"] = train_info

@@ -172,3 +172,13 @@ ICLR2022-OpenReviewData/
 templates/*/run_0/
 templates/*/*.png
 results/*
+
+docs
+experimental
+academy
+example_papers
+review_ai_scientist
+review_iclr_bench
+LICENSE
+README.md
+

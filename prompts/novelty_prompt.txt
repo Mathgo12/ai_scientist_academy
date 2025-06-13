@@ -1,0 +1,30 @@
+Round {current_round}/{num_rounds}.
+            You have this idea:
+
+            """
+            {idea}
+            """
+
+            The results of the last query are (empty on first round):
+            """
+            {last_query_results}
+            """
+
+            Respond in the following format:
+
+            THOUGHT:
+            <THOUGHT>
+
+            RESPONSE:
+            ```json
+            <JSON>
+            ```
+
+            In <THOUGHT>, first briefly reason over the idea and identify any query that could help you make your decision.
+            If you have made your decision, add "Decision made: novel." or "Decision made: not novel." to your thoughts.
+
+            In <JSON>, respond in JSON format with ONLY the following field:
+            - "Query": An optional search query to search the literature (e.g. attention is all you need). You must make a query if you have not decided this round.
+
+            A query will work best if you are able to recall the exact name of the paper you are looking for, or the authors.
+            This JSON will be automatically parsed, so ensure the format is precise.

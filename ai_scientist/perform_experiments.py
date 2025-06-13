@@ -5,8 +5,8 @@ import subprocess
 import sys
 from subprocess import TimeoutExpired
 
-MAX_ITERS = 4
-MAX_RUNS = 5
+MAX_ITERS = 5
+MAX_RUNS = 2
 MAX_STDERR_OUTPUT = 1500
 
 coder_prompt = """Your goal is to implement the following idea: {title}.
@@ -64,17 +64,17 @@ def run_experiment(folder_name, run_num, timeout=7200):
             results = {k: v["means"] for k, v in results.items()}
 
             next_prompt = f"""Run {run_num} completed. Here are the results:
-{results}
-
-Decide if you need to re-plan your experiments given the result (you often will not need to).
-
-Someone else will be using `notes.txt` to perform a writeup on this in the future.
-Please include *all* relevant information for the writeup on Run {run_num}, including an experiment description and the run number. Be as verbose as necessary.
-
-Then, implement the next thing on your list.
-We will then run the command `python experiment.py --out_dir=run_{run_num + 1}'.
-YOUR PROPOSED CHANGE MUST USE THIS COMMAND FORMAT, DO NOT ADD ADDITIONAL COMMAND LINE ARGS.
-If you are finished with experiments, respond with 'ALL_COMPLETED'."""
+            {results}
+            
+            Decide if you need to re-plan your experiments given the result (you often will not need to).
+            
+            Someone else will be using `notes.txt` to perform a writeup on this in the future.
+            Please include *all* relevant information for the writeup on Run {run_num}, including an experiment description and the run number. Be as verbose as necessary.
+            
+            Then, implement the next thing on your list.
+            We will then run the command `python experiment.py --out_dir=run_{run_num + 1}'.
+            YOUR PROPOSED CHANGE MUST USE THIS COMMAND FORMAT, DO NOT ADD ADDITIONAL COMMAND LINE ARGS.
+            If you are finished with experiments, respond with 'ALL_COMPLETED'."""
         return result.returncode, next_prompt
     except TimeoutExpired:
         print(f"Run {run_num} timed out after {timeout} seconds")
@@ -113,18 +113,18 @@ def run_plotting(folder_name, timeout=600):
 
 
 # PERFORM EXPERIMENTS
-def perform_experiments(idea, folder_name, coder, baseline_results) -> bool:
+def perform_experiments(idea, folder_name, coder, baseline_results, max_runs = MAX_RUNS, max_iters = MAX_ITERS) -> bool:
     ## RUN EXPERIMENT
     current_iter = 0
     run = 1
     next_prompt = coder_prompt.format(
         title=idea["Title"],
         idea=idea["Experiment"],
-        max_runs=MAX_RUNS,
+        max_runs=max_runs,
         baseline_results=baseline_results,
     )
-    while run < MAX_RUNS + 1:
-        if current_iter >= MAX_ITERS:
+    while run < max_runs + 1:
+        if current_iter >= max_iters:
             print("Max iterations reached")
             break
         coder_out = coder.run(next_prompt)
@@ -132,29 +132,29 @@ def perform_experiments(idea, folder_name, coder, baseline_results) -> bool:
         if "ALL_COMPLETED" in coder_out:
             break
         return_code, next_prompt = run_experiment(folder_name, run)
-        if return_code == 0:
+        if return_code == 0: # 0 means success
             run += 1
             current_iter = 0
         current_iter += 1
-    if current_iter >= MAX_ITERS:
+    if current_iter >= max_iters:
         print("Not all experiments completed.")
         return False
 
     current_iter = 0
     next_prompt = """
-Great job! Please modify `plot.py` to generate the most relevant plots for the final writeup. 
-
-In particular, be sure to fill in the "labels" dictionary with the correct names for each run that you want to plot.
-
-Only the runs in the `labels` dictionary will be plotted, so make sure to include all relevant runs.
-
-We will be running the command `python plot.py` to generate the plots.
-"""
+        Great job! Please modify `plot.py` to generate the most relevant plots for the final writeup. 
+        
+        In particular, be sure to fill in the "labels" dictionary with the correct names for each run that you want to plot.
+        
+        Only the runs in the `labels` dictionary will be plotted, so make sure to include all relevant runs.
+        
+        We will be running the command `python plot.py` to generate the plots.
+        """
     while True:
         _ = coder.run(next_prompt)
         return_code, next_prompt = run_plotting(folder_name)
         current_iter += 1
-        if return_code == 0 or current_iter >= MAX_ITERS:
+        if return_code == 0 or current_iter >= max_iters:
             break
     next_prompt = """
 Please modify `notes.txt` with a description of what each plot shows along with the filename of the figure. Please do so in-depth.
