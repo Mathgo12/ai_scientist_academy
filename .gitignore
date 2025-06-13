@@ -173,12 +173,12 @@ templates/*/run_0/
 templates/*/*.png
 results/*
 
-docs
-experimental
-academy
-example_papers
-review_ai_scientist
-review_iclr_bench
+docs/
+experimental/
+academy/
+example_papers/
+review_ai_scientist/
+review_iclr_bench/
 LICENSE
 README.md
 
